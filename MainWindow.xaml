@@ -1,0 +1,231 @@
+<Window x:Class="RoadSurvey.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="道路勘测系统 v1.0 (Windows)" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <!-- 工具栏 -->
+        <StackPanel DockPanel.Dock="Top" Background="#87CEEB" Height="50" Orientation="Horizontal" Padding="10">
+            <Button x:Name="NewProjectBtn" Content="新建项目" Width="80" Height="35" Margin="5" Style="{StaticResource ButtonStyle}"/>
+            <Button x:Name="OpenProjectBtn" Content="打开项目" Width="80" Height="35" Margin="5" Style="{StaticResource ButtonStyle}"/>
+            <Button x:Name="SaveProjectBtn" Content="保存项目" Width="80" Height="35" Margin="5" Style="{StaticResource ButtonStyle}"/>
+            <Button x:Name="ExportWordBtn" Content="导出Word" Width="80" Height="35" Margin="5" Style="{StaticResource ButtonStyle}"/>
+        </StackPanel>
+
+        <!-- 主内容区 -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧菜单 -->
+            <StackPanel Grid.Column="0" Background="#F5F5F5" Padding="15">
+                <TextBlock Text="当前项目" Style="{StaticResource HeaderStyle}" Margin="0,0,0,10"/>
+                <TextBlock x:Name="ProjectNameLabel" Text="未加载项目" TextWrapping="Wrap" Margin="0,0,0,20" Foreground="#666"/>
+                
+                <TextBlock Text="数据统计" Style="{StaticResource HeaderStyle}" Margin="0,0,0,10"/>
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock x:Name="BridgeCountLabel" Text="桥梁数: 0" Margin="0,5"/>
+                    <TextBlock x:Name="ObstacleCountLabel" Text="限高/涵洞数: 0" Margin="0,5"/>
+                    <TextBlock x:Name="OtherObstacleCountLabel" Text="其他障碍数: 0" Margin="0,5"/>
+                </StackPanel>
+
+                <TextBlock Text="功能模块" Style="{StaticResource HeaderStyle}" Margin="0,0,0,10"/>
+                <ListBox x:Name="ModuleListBox" Height="250" SelectionChanged="ModuleListBox_SelectionChanged">
+                    <ListBoxItem Content="📋 项目基础信息" Tag="ProjectInfo"/>
+                    <ListBoxItem Content="🌉 桥梁数据" Tag="Bridges"/>
+                    <ListBoxItem Content="⛔ 限高/涵洞" Tag="Obstacles"/>
+                    <ListBoxItem Content="🔄 其他障碍" Tag="OtherObstacles"/>
+                </ListBox>
+            </StackPanel>
+
+            <!-- 右侧内容区 -->
+            <TabControl Grid.Column="1" x:Name="ContentTabControl">
+                <!-- 项目信息标签 -->
+                <TabItem Header="项目基础信息" x:Name="ProjectInfoTab">
+                    <ScrollViewer>
+                        <StackPanel Padding="20">
+                            <TextBlock Text="项目基础信息" Style="{StaticResource HeaderStyle}" Margin="0,0,0,15"/>
+                            
+                            <TextBlock Text="项目名称"/>
+                            <TextBox x:Name="ProjectNameTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            <TextBlock Foreground="Red" FontSize="11" Text="必填项"/>
+                            
+                            <TextBlock Text="拟通行货物参数"/>
+                            <TextBox x:Name="CargoParamsTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            
+                            <TextBlock Text="拟配车辆或设备"/>
+                            <TextBox x:Name="VehicleConfigTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            
+                            <TextBlock Text="勘测人"/>
+                            <TextBox x:Name="SurveyorTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            
+                            <TextBlock Text="勘测时间"/>
+                            <TextBox x:Name="SurveyDateTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            
+                            <TextBlock Text="勘测起点"/>
+                            <TextBox x:Name="StartPointTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            
+                            <TextBlock Text="勘测终点"/>
+                            <TextBox x:Name="EndPointTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            
+                            <TextBlock Text="里程(km)"/>
+                            <TextBox x:Name="DistanceTextBox" Padding="8" Margin="0,0,0,10" Height="35"/>
+                            
+                            <TextBlock Text="备注"/>
+                            <TextBox x:Name="RemarksTextBox" Padding="8" Margin="0,0,0,10" Height="80" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                            
+                            <TextBlock Text="物流环境总结"/>
+                            <TextBox x:Name="LogisticsSummaryTextBox" Padding="8" Margin="0,0,0,10" Height="120" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                            
+                            <TextBlock Text="运输路线图"/>
+                            <Button x:Name="UploadRouteMapBtn" Content="上传路线图" Width="120" Height="35" Margin="0,0,0,20" Style="{StaticResource ButtonStyle}"/>
+                            
+                            <Button x:Name="SaveProjectInfoBtn" Content="保存项目信息" Width="120" Height="40" Style="{StaticResource ButtonStyle}" FontSize="13"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- 桥梁数据标签 -->
+                <TabItem Header="桥梁数据" x:Name="BridgesTab">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="400"/>
+                        </Grid.RowDefinitions>
+
+                        <DataGrid Grid.Row="0" x:Name="BridgesDataGrid" AutoGenerateColumns="True" Margin="10"/>
+
+                        <StackPanel Grid.Row="1" Orientation="Vertical" Padding="20" Background="#F9F9F9">
+                            <TextBlock Text="添加/编辑桥梁数据" Style="{StaticResource HeaderStyle}"/>
+                            
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="桥梁名称"/>
+                                    <TextBox x:Name="BridgeNameTextBox" Padding="8" Height="30"/>
+                                    
+                                    <TextBlock Text="K值 (必填)" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="BridgeKmTextBox" Padding="8" Height="30"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="道路编号"/>
+                                    <ComboBox x:Name="BridgeRoadComboBox" Padding="8" Height="30">
+                                        <ComboBoxItem>N16</ComboBoxItem>
+                                        <ComboBoxItem>N13</ComboBoxItem>
+                                        <ComboBoxItem>N2</ComboBoxItem>
+                                    </ComboBox>
+                                    
+                                    <TextBlock Text="桥梁类型" Margin="0,10,0,0"/>
+                                    <ComboBox x:Name="BridgeTypeComboBox" Padding="8" Height="30">
+                                        <ComboBoxItem>I型梁</ComboBoxItem>
+                                        <ComboBoxItem>箱型梁</ComboBoxItem>
+                                        <ComboBoxItem>板拱</ComboBoxItem>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button x:Name="AddBridgeBtn" Content="添加桥梁" Width="100" Height="35" Margin="0,10,0,0" Style="{StaticResource ButtonStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- 限高/涵洞标签 -->
+                <TabItem Header="限高/涵洞" x:Name="ObstaclesTab">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="400"/>
+                        </Grid.RowDefinitions>
+
+                        <DataGrid Grid.Row="0" x:Name="ObstaclesDataGrid" AutoGenerateColumns="True" Margin="10"/>
+
+                        <StackPanel Grid.Row="1" Orientation="Vertical" Padding="20" Background="#F9F9F9">
+                            <TextBlock Text="添加/编辑限高/涵洞数据" Style="{StaticResource HeaderStyle}"/>
+                            
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="障碍类型"/>
+                                    <ComboBox x:Name="ObstacleTypeComboBox" Padding="8" Height="30">
+                                        <ComboBoxItem>道路指示牌</ComboBoxItem>
+                                        <ComboBoxItem>高空橋</ComboBoxItem>
+                                        <ComboBoxItem>涵洞</ComboBoxItem>
+                                    </ComboBox>
+                                    
+                                    <TextBlock Text="K值 (必填)" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="ObstacleKmTextBox" Padding="8" Height="30"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="障碍名称"/>
+                                    <TextBox x:Name="ObstacleNameTextBox" Padding="8" Height="30"/>
+                                    
+                                    <TextBlock Text="最低高度" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="ObstacleHeightTextBox" Padding="8" Height="30"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button x:Name="AddObstacleBtn" Content="添加障碍" Width="100" Height="35" Margin="0,10,0,0" Style="{StaticResource ButtonStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- 其他障碍标签 -->
+                <TabItem Header="其他障碍" x:Name="OtherObstaclesTab">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="400"/>
+                        </Grid.RowDefinitions>
+
+                        <DataGrid Grid.Row="0" x:Name="OtherObstaclesDataGrid" AutoGenerateColumns="True" Margin="10"/>
+
+                        <StackPanel Grid.Row="1" Orientation="Vertical" Padding="20" Background="#F9F9F9">
+                            <TextBlock Text="添加/编辑其他障碍数据" Style="{StaticResource HeaderStyle}"/>
+                            
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                    <TextBlock Text="障碍名称"/>
+                                    <TextBox x:Name="OtherNameTextBox" Padding="8" Height="30"/>
+                                    
+                                    <TextBlock Text="K值 (必填)" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="OtherKmTextBox" Padding="8" Height="30"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="道路编号"/>
+                                    <ComboBox x:Name="OtherRoadComboBox" Padding="8" Height="30">
+                                        <ComboBoxItem>N16</ComboBoxItem>
+                                        <ComboBoxItem>N13</ComboBoxItem>
+                                        <ComboBoxItem>N2</ComboBoxItem>
+                                    </ComboBox>
+                                    
+                                    <TextBlock Text="道路高差" Margin="0,10,0,0"/>
+                                    <TextBox x:Name="OtherHeightTextBox" Padding="8" Height="30" Text="0.2-0.4m"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button x:Name="AddOtherObstacleBtn" Content="添加其他障碍" Width="120" Height="35" Margin="0,10,0,0" Style="{StaticResource ButtonStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>
