@@ -19,21 +19,19 @@ jobs:
         dotnet-version: '8.0.x'
     
     - name: Restore
-      run: dotnet restore RoadSurveyWPF/RoadSurvey.csproj
+      # 自动寻找任何 .csproj 文件，无需指定路径
+      run: dotnet restore
     
     - name: Publish Self-Contained
+      # 这里同样使用通用指令
       run: |
-        dotnet publish RoadSurveyWPF/RoadSurvey.csproj `
-          -c Release `
-          -r win-x64 `
-          --self-contained `
-          -p:PublishSingleFile=true `
-          -p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
     
     - name: Upload Release
       uses: softprops/action-gh-release@v1
       with:
-        files: RoadSurveyWPF/bin/Release/net8.0-windows/win-x64/publish/RoadSurvey.exe
+        # 这里使用通配符，它会自动找到生成的 .exe，无论它在哪个子目录
+        files: "**/*.exe"
         draft: false
         prerelease: false
       env:
