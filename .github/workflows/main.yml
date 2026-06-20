@@ -18,19 +18,19 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     
-    - name: Restore
-      # 因为 .csproj 就在根目录，直接运行即可
-      run: dotnet restore
+    - name: Clean and Restore
+      # 增加 clean 以确保没有旧缓存影响
+      run: |
+        dotnet clean
+        dotnet restore
     
     - name: Publish Self-Contained
-      # 使用当前目录编译
       run: |
         dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
     
     - name: Upload Release
       uses: softprops/action-gh-release@v1
       with:
-        # 直接指定编译后的输出路径
         files: bin/Release/net8.0-windows/win-x64/publish/RoadSurvey.exe
         draft: false
         prerelease: false
