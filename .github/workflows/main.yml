@@ -18,14 +18,14 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     
-    - name: Clear Cache and Restore
-      # 整合后的步骤：先清空所有缓存，再强制还原，避免 NU1102 错误
+    - name: Restore and Build
+      # --force 和 --no-cache 组合使用，忽略一切旧缓存
       run: |
         dotnet nuget locals all --clear
-        dotnet restore --no-cache --force
+        dotnet restore --force --no-cache
+        dotnet build -c Release
     
     - name: Publish Self-Contained
-      # 编译命令，直接作用于根目录的项目
       run: |
         dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
     
