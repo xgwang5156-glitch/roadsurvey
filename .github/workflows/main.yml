@@ -18,16 +18,13 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     
-    - name: Clean and Restore
-      # 强制清除缓存并还原
-      run: |
-        dotnet clean
-        dotnet restore --no-cache
+    - name: Restore with Clean Cache
+      # 强制清除缓存并还原，确保读取最新的 csproj 配置
+      run: dotnet restore --no-cache
     
     - name: Publish Self-Contained
-      # 这里的路径不需要写文件夹前缀了
       run: |
-        dotnet publish RoadSurvey.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+        dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
     
     - name: Upload Release
       uses: softprops/action-gh-release@v1
